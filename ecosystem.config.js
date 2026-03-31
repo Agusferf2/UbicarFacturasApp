@@ -1,9 +1,12 @@
+const path = require('path');
+const base = __dirname;
+
 module.exports = {
   apps: [
     {
       name: 'evolution-api',
-      script: 'dist/main.js',
-      cwd: 'C:/Users/USER/Documents/evolution-api-v2',
+      script: path.join(base, 'evolution', 'dist', 'main.js'),
+      cwd: path.join(base, 'evolution'),
       watch: false,
       restart_delay: 5000,
       max_restarts: 10,
@@ -13,8 +16,8 @@ module.exports = {
     },
     {
       name: 'ubifacturas',
-      script: 'src/index.js',
-      cwd: 'C:/Users/USER/Documents/UbicarFacturasApp',
+      script: path.join(base, 'src', 'index.js'),
+      cwd: base,
       watch: false,
       restart_delay: 5000,
       max_restarts: 10,

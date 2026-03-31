@@ -1,4 +1,10 @@
 node_modules/
+evolution/node_modules/
+evolution/instances/
+evolution/dist/**/*.map
+evolution/dist/**/*.mjs
 .env
+evolution/.env
 credentials/
 .claude/
+qr-whatsapp.png
