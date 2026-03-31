@@ -9,6 +9,16 @@ const router = express.Router();
 // Tipos de mensaje que contienen archivos
 const FILE_MESSAGE_TYPES = ['documentMessage', 'imageMessage', 'audioMessage', 'videoMessage'];
 
+// Deduplicación: evitar procesar el mismo mensaje dos veces
+const procesados = new Set();
+function yaFueProcesado(id) {
+  if (procesados.has(id)) return true;
+  procesados.add(id);
+  // Limpiar después de 5 minutos para no acumular memoria
+  setTimeout(() => procesados.delete(id), 5 * 60 * 1000);
+  return false;
+}
+
 router.post('/', async (req, res) => {
   // Responder rápido para que Evolution API no reintente
   res.status(200).json({ received: true });
@@ -30,6 +40,14 @@ router.post('/', async (req, res) => {
   if (!FILE_MESSAGE_TYPES.includes(messageType)) return;
 
   const phoneNumber = message.key.remoteJid.replace('@s.whatsapp.net', '');
+
+  // Ignorar si ya procesamos este mensaje exacto
+  const msgId = message.key?.id;
+  if (msgId && yaFueProcesado(msgId)) {
+    console.log(`[Webhook] Mensaje duplicado ignorado: ${msgId}`);
+    return;
+  }
+
   const messageContent = message.message[messageType];
 
   const fileName = messageContent.fileName || messageContent.title || `archivo_${Date.now()}`;
