@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node start.js",
     "dev": "nodemon src/index.js",
-    "postinstall": "cd evolution && npm install"
+    "postinstall": "cd evolution && npm install && node_modules/.bin/prisma generate --schema=prisma/postgresql-schema.prisma"
   },
   "dependencies": {
     "axios": "^1.7.2",
