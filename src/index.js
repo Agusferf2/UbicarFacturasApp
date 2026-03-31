@@ -27,7 +27,11 @@ app.get('/health', (req, res) => {
 app.use('/webhook', webhookRouter);
 
 async function configurarWebhook() {
-  const webhookUrl = process.env.WEBHOOK_URL || `http://localhost:${PORT}/webhook`;
+  // En Railway, RAILWAY_PUBLIC_DOMAIN se inyecta automáticamente
+  const publicDomain = process.env.WEBHOOK_URL ||
+    (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}/webhook` : null) ||
+    `http://localhost:${PORT}/webhook`;
+  const webhookUrl = publicDomain;
   const instance = process.env.EVOLUTION_INSTANCE;
   const apiUrl = process.env.EVOLUTION_API_URL;
   const apiKey = process.env.EVOLUTION_API_KEY;
