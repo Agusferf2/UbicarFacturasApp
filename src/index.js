@@ -7,15 +7,8 @@ const webhookRouter = require('./webhook');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json({ limit: '50mb' }));
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.use('/webhook', webhookRouter);
-
-// Proxy para Evolution API (acceso externo a la API interna)
+// Proxy para Evolution API — debe registrarse ANTES de express.json()
+// para que el body de los POST no sea consumido antes de ser reenviado
 const evolutionProxy = createProxyMiddleware({
   target: process.env.EVOLUTION_API_URL || 'http://localhost:8081',
   changeOrigin: true,
@@ -24,6 +17,14 @@ app.use('/instance', evolutionProxy);
 app.use('/message', evolutionProxy);
 app.use('/chat', evolutionProxy);
 app.use('/manager', evolutionProxy);
+
+app.use(express.json({ limit: '50mb' }));
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.use('/webhook', webhookRouter);
 
 async function configurarWebhook() {
   const webhookUrl = process.env.WEBHOOK_URL || `http://localhost:${PORT}/webhook`;
