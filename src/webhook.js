@@ -6,8 +6,8 @@ const { sendMessage } = require('./whatsapp');
 
 const router = express.Router();
 
-// Tipos de mensaje que contienen archivos
-const FILE_MESSAGE_TYPES = ['documentMessage', 'imageMessage', 'audioMessage', 'videoMessage'];
+// Solo documentos (PDF, Word, Excel, etc.) — no imágenes ni audios
+const FILE_MESSAGE_TYPES = ['documentMessage'];
 
 // Deduplicación: evitar procesar el mismo mensaje dos veces
 const procesados = new Set();
