@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 const evolutionProxy = createProxyMiddleware({
   target: process.env.EVOLUTION_API_URL || 'http://localhost:8081',
   changeOrigin: true,
-  pathFilter: ['/instance/**', '/message/**', '/chat/**', '/manager/**'],
+  pathFilter: ['/instance/**', '/message/**', '/chat/**', '/manager/**', '/webhook/set/**', '/webhook/find/**'],
 });
 app.use(evolutionProxy);
 
