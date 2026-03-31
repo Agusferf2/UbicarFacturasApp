@@ -2,14 +2,26 @@ const { google } = require('googleapis');
 const path = require('path');
 const { Readable } = require('stream');
 
-const CREDENTIALS_FILE = path.join(__dirname, '..', 'credentials', 'oauth-client.json');
 const ROOT_FOLDER_ID = process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
 
 function getAuthClient() {
-  const credentials = require(CREDENTIALS_FILE);
-  const { client_secret, client_id, redirect_uris } = credentials.installed || credentials.web;
+  // Soporte para credenciales via variables de entorno (Railway) o archivo local
+  let client_id, client_secret, redirect_uri;
 
-  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    client_id = process.env.GOOGLE_CLIENT_ID;
+    client_secret = process.env.GOOGLE_CLIENT_SECRET;
+    redirect_uri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost';
+  } else {
+    const CREDENTIALS_FILE = path.join(__dirname, '..', 'credentials', 'oauth-client.json');
+    const credentials = require(CREDENTIALS_FILE);
+    const creds = credentials.installed || credentials.web;
+    client_id = creds.client_id;
+    client_secret = creds.client_secret;
+    redirect_uri = creds.redirect_uris[0];
+  }
+
+  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri);
   oAuth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
   return oAuth2Client;
 }
