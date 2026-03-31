@@ -8,15 +8,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Proxy para Evolution API — debe registrarse ANTES de express.json()
-// para que el body de los POST no sea consumido antes de ser reenviado
+// para que el body de los POST no sea consumido antes de ser reenviado.
+// Se usa pathFilter para que las rutas completas lleguen a Evolution API intactas
+// (ej: /instance/create → http://localhost:8081/instance/create)
 const evolutionProxy = createProxyMiddleware({
   target: process.env.EVOLUTION_API_URL || 'http://localhost:8081',
   changeOrigin: true,
+  pathFilter: ['/instance/**', '/message/**', '/chat/**', '/manager/**'],
 });
-app.use('/instance', evolutionProxy);
-app.use('/message', evolutionProxy);
-app.use('/chat', evolutionProxy);
-app.use('/manager', evolutionProxy);
+app.use(evolutionProxy);
 
 app.use(express.json({ limit: '50mb' }));
 
