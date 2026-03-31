@@ -1,6 +1,5 @@
 const { spawn } = require('child_process');
 const path = require('path');
-const { execSync } = require('child_process');
 
 // Variables para Evolution API tomadas del entorno de Railway
 const evolutionEnv = {
@@ -16,20 +15,6 @@ const evolutionEnv = {
   DEL_INSTANCE: 'false',
   LANGUAGE: 'pt-BR',
 };
-
-// Correr migraciones antes de arrancar
-console.log('[start] Corriendo migraciones de base de datos...');
-try {
-  execSync('node_modules/.bin/prisma migrate deploy --schema=prisma/postgresql-schema.prisma', {
-    cwd: path.join(__dirname, 'evolution'),
-    env: evolutionEnv,
-    stdio: 'inherit',
-  });
-  console.log('[start] Migraciones OK');
-} catch (e) {
-  console.error('[start] Error en migraciones:', e.message);
-  process.exit(1);
-}
 
 // Arrancar Evolution API
 console.log('[start] Iniciando Evolution API...');
