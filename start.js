@@ -20,7 +20,7 @@ const evolutionEnv = {
 // Correr migraciones antes de arrancar
 console.log('[start] Corriendo migraciones de base de datos...');
 try {
-  execSync('npx prisma migrate deploy --schema=prisma/postgresql-schema.prisma', {
+  execSync('node_modules/.bin/prisma migrate deploy --schema=prisma/postgresql-schema.prisma', {
     cwd: path.join(__dirname, 'evolution'),
     env: evolutionEnv,
     stdio: 'inherit',
