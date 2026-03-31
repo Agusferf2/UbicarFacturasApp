@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const webhookRouter = require('./webhook');
 
 const app = express();
@@ -13,6 +14,16 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/webhook', webhookRouter);
+
+// Proxy para Evolution API (acceso externo a la API interna)
+const evolutionProxy = createProxyMiddleware({
+  target: process.env.EVOLUTION_API_URL || 'http://localhost:8081',
+  changeOrigin: true,
+});
+app.use('/instance', evolutionProxy);
+app.use('/message', evolutionProxy);
+app.use('/chat', evolutionProxy);
+app.use('/manager', evolutionProxy);
 
 async function configurarWebhook() {
   const webhookUrl = process.env.WEBHOOK_URL || `http://localhost:${PORT}/webhook`;
