@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const axios = require('axios');
 const webhookRouter = require('./webhook');
 
 const app = express();
@@ -13,7 +14,34 @@ app.get('/health', (req, res) => {
 
 app.use('/webhook', webhookRouter);
 
+async function configurarWebhook() {
+  const webhookUrl = process.env.WEBHOOK_URL || `http://localhost:${PORT}/webhook`;
+  const instance = process.env.EVOLUTION_INSTANCE;
+  const apiUrl = process.env.EVOLUTION_API_URL;
+  const apiKey = process.env.EVOLUTION_API_KEY;
+
+  // Reintentar hasta que Evolution API esté lista
+  for (let i = 0; i < 10; i++) {
+    try {
+      await axios.post(`${apiUrl}/webhook/set/${instance}`, {
+        webhook: {
+          url: webhookUrl,
+          enabled: true,
+          events: ['MESSAGES_UPSERT'],
+        }
+      }, { headers: { apikey: apiKey } });
+      console.log(`Webhook configurado: ${webhookUrl}`);
+      return;
+    } catch (e) {
+      console.log(`Esperando Evolution API... (intento ${i + 1})`);
+      await new Promise(r => setTimeout(r, 3000));
+    }
+  }
+  console.error('No se pudo configurar el webhook');
+}
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   console.log(`Evolution API apuntando a: ${process.env.EVOLUTION_API_URL}`);
+  configurarWebhook();
 });
